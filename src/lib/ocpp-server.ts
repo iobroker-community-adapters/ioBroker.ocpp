@@ -393,6 +393,7 @@ export class OcppServer {
     public onClientError?: (client: OcppClientConnection, action: string | undefined, error: Error) => void;
     public onClientConnect?: (client: OcppClientConnection) => void;
     public onClientDisconnect?: (client: OcppClientConnection, code: number, reason: string) => void;
+    public onTlsError?: (error: Error) => void;
 
     public constructor(options: OcppServerOptions = {}) {
         this.options = options;
@@ -424,6 +425,12 @@ export class OcppServer {
         const supportedProtocols = this.options.supportedProtocols ?? ['ocpp1.6'];
 
         this.httpServer = this.options.tlsOptions ? https.createServer(this.options.tlsOptions) : http.createServer();
+
+        if (this.options.tlsOptions) {
+            (this.httpServer as https.Server).on('tlsClientError', (err: Error) => {
+                this.onTlsError?.(err);
+            });
+        }
 
         this.wss = new WebSocket.Server({
             noServer: true,

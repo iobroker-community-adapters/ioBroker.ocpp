@@ -23,9 +23,22 @@ Adapter to connect and control OCPP 1.6-J compatible wallboxes and EV charging s
 - 🇩🇪 [Dokumentation](../de/README.md)
 
 ## Configuration
-- **Server port:** TCP port the OCPP WebSocket server listens on (default: `9220`). Configure your wallbox to connect to `ws://<iobroker-ip>:9220/<ChargePointId>`.
+- **Server port:** TCP port the OCPP WebSocket server listens on (default: `9220`). Configure your wallbox to connect to `ws://<iobroker-ip>:9220/<ChargePointId>` (or `wss://...` when TLS is enabled).
 - **Remove leading slash (`/`) from Charge Point IDs (`stripLeadingSlash`):** Enable for new installations or Node-RED compatibility so device objects are created as `ocpp.0.EVB-P123456` instead of `ocpp.0./EVB-P123456` (or `ocpp.0.http://192_168_178_80:9220/EVB-P123456` for wallboxes sending an absolute URL during the WebSocket handshake). Leave disabled to preserve existing object IDs.
 - **Authentication:** Optional HTTP Basic Authentication (`username` and `password`) required during the WebSocket handshake.
+- **TLS / Encrypted WebSocket (`wss://`):**
+  - **Use TLS (`wss://`) (`secure`):** Enables encrypted `wss://` connections (**OCPP Security Profile 2**: server-side TLS + optional HTTP Basic Auth; client certificates / OCPP Security Profile 3 mTLS are not supported).
+  - **How the ioBroker certificate mechanism works:**
+    - Certificates are managed centrally in ioBroker under **Admin -> System Settings -> Certificates** (either the built-in self-signed `defaultPublic` / `defaultPrivate`, custom PEM certificates you uploaded, or automated Let's Encrypt certificates created by e.g. `iobroker.acme`).
+    - When **Use TLS (`wss://`)** is enabled, select the matching entries in the adapter settings:
+      - **Public certificate (`certPublic`):** Server certificate (public key / PEM).
+      - **Private certificate (`certPrivate`):** Matching private key for the server certificate.
+      - **Chained certificate (`certChained`):** Optional intermediate/CA certificate chain if required by your CA or wallbox.
+  - **Important notes for real wallboxes:**
+    - **Truststore & self-signed certificates:** Many wallboxes reject self-signed certificates (such as ioBroker's `defaultPublic`) unless you explicitly upload the certificate or root CA into the wallbox's truststore. If the wallbox aborts the TLS handshake, check the adapter log for `TLS handshake error` warnings.
+    - **Hostname / SAN match:** If you use a CA-signed or Let's Encrypt certificate, the wallbox must connect using the domain name covered by the certificate (e.g. `wss://wallbox.example.com:9220/<ChargePointId>`), not the raw local IP address.
+    - **Certificate renewal:** The adapter loads certificates on startup. After renewing or replacing a certificate in ioBroker, restart the `ocpp` adapter instance.
+    - **Alternative:** If your wallbox does not support custom CAs or you prefer central TLS termination, keep **Use TLS** disabled in the adapter and place a reverse proxy (e.g. Nginx, Traefik, or Caddy) in front of `ws://<iobroker-ip>:9220`.
 
 ## Smart Charging & PV Surplus Charging
 - **Requirements & Wallbox Compatibility:**
@@ -61,6 +74,7 @@ This adapter would not have been possible without the great work of @foxriver76 
 	### **WORK IN PROGRESS**
 -->
 ### **WORK IN PROGRESS**
+* (meistermopper) add native TLS (wss://) certificate support (#58)
 * (meistermopper) add Weblate translation status badge
 
 ### 1.0.0 (2026-11-09)

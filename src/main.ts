@@ -2,6 +2,7 @@
  * Created with @iobroker/create-adapter v2.0.1
  */
 
+import type * as https from 'node:https';
 import * as utils from '@iobroker/adapter-core';
 import { getConnectorObjects, deviceObjects } from './lib/states';
 import type { OcppClientConnection } from './lib/ocpp-server';
@@ -270,17 +271,49 @@ class Ocpp extends utils.Adapter {
                 return Promise.resolve([true, 200, 'OK']);
             };
 
+            let tlsOptions: https.ServerOptions | undefined;
+            if (this.config.secure) {
+                try {
+                    const [certificates] = await this.getCertificatesAsync(
+                        this.config.certPublic,
+                        this.config.certPrivate,
+                        this.config.certChained,
+                    );
+                    if (!certificates || !certificates.cert || !certificates.key) {
+                        this.log.error(
+                            'TLS (wss://) is enabled, but valid public/private certificates could not be loaded. Please check the adapter certificate settings.',
+                        );
+                        return;
+                    }
+                    tlsOptions = {
+                        cert: certificates.cert,
+                        key: certificates.key,
+                        ...(certificates.ca ? { ca: certificates.ca } : {}),
+                    };
+                } catch (err: unknown) {
+                    this.log.error(
+                        `Failed to load TLS certificates: ${err instanceof Error ? err.message : String(err)}`,
+                    );
+                    return;
+                }
+            }
+
             this.server = new OcppServer({
                 validateConnection,
                 supportedProtocols: ['ocpp1.6'],
                 adapter: this,
+                tlsOptions,
             });
+
+            this.server.onTlsError = (error): void => {
+                this.log.warn(`TLS handshake error: ${error.message}`);
+            };
 
             const port = await this.getPortAsync(this.config.port);
 
             await this.server.listen(port);
 
-            this.log.info(`Server listening on port ${port}`);
+            this.log.info(`Server listening on port ${port} (${tlsOptions ? 'wss://' : 'ws://'})`);
 
             this.server.onClientError = (client, action, error): void => {
                 this.log.error(

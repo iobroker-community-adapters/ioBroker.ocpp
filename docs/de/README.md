@@ -27,9 +27,22 @@ Adapter zur lokalen Einbindung und Steuerung von OCPP 1.6-J kompatiblen Wallboxe
 
 ## Konfiguration
 
-- **Server-Port:** TCP-Port, auf dem der OCPP-WebSocket-Server lauscht (Standard: `9220`). In der Wallbox wird als OCPP-Backend-URL `ws://<iobroker-ip>:9220/<Wallbox-ID>` eingetragen.
+- **Server-Port:** TCP-Port, auf dem der OCPP-WebSocket-Server lauscht (Standard: `9220`). In der Wallbox wird als OCPP-Backend-URL `ws://<iobroker-ip>:9220/<Wallbox-ID>` eingetragen (bzw. `wss://...`, wenn TLS aktiviert ist).
 - **Führenden Schrägstrich (`/`) aus Wallbox-IDs entfernen (`stripLeadingSlash`):** Für Neuinstallationen oder Node-RED-Kompatibilität aktivieren, damit Geräte-Objekte als `ocpp.0.EVB-P123456` statt `ocpp.0./EVB-P123456` (bzw. `ocpp.0.http://192_168_178_80:9220/EVB-P123456` bei Wallboxen wie EVBox, die beim Handshake eine komplette URL senden) angelegt werden. Bei Bestandsinstallationen deaktiviert lassen, um bestehende Objekt-IDs beizubehalten.
 - **Authentifizierung:** Optionale HTTP Basic-Authentifizierung (`username` und `password`) beim WebSocket-Verbindungsaufbau.
+- **TLS / Verschlüsseltes WebSocket (`wss://`):**
+  - **TLS verwenden (`wss://`) (`secure`):** Aktiviert verschlüsselte `wss://`-Verbindungen (**OCPP Security Profile 2**: serverseitige TLS-Verschlüsselung + optionale HTTP Basic-Authentifizierung; Client-Zertifikate / OCPP Security Profile 3 mTLS werden nicht unterstützt).
+  - **So funktioniert der ioBroker-Zertifikatsmechanismus:**
+    - Zertifikate werden in ioBroker zentral unter **Admin -> Systemeinstellungen -> Zertifikate** verwaltet (entweder die vorinstallierten selbstsignierten Standardzertifikate `defaultPublic` / `defaultPrivate`, eigene hochgeladene PEM-Zertifikate oder automatisch über z. B. `iobroker.acme` erzeugte Let's-Encrypt-Zertifikate).
+    - Sobald **TLS verwenden (`wss://`)** aktiviert ist, wählst du in den Adapter-Einstellungen die passenden Einträge aus:
+      - **Öffentliches Zertifikat (`certPublic`):** Das Server-Zertifikat (Public Key / PEM).
+      - **Privates Zertifikat (`certPrivate`):** Der passende Private Key zum Server-Zertifikat.
+      - **Verkettetes Zertifikat (`certChained`):** Optionale Intermediate-/CA-Zertifikatskette, falls deine CA oder Wallbox die vollständige Kette erwartet.
+  - **Wichtige Hinweise für echte Wallboxen:**
+    - **Truststore & selbstsignierte Zertifikate:** Viele Wallboxen lehnen selbstsignierte Zertifikate (wie das ioBroker-`defaultPublic`) ab, solange das Zertifikat bzw. die eigene Root-CA nicht explizit im Truststore der Wallbox hinterlegt wurde. Bricht die Wallbox den TLS-Handshake ab, erscheinen im Adapter-Log entsprechende `TLS handshake error`-Warnungen.
+    - **Hostname / SAN-Abgleich:** Bei einem offiziellen oder Let's-Encrypt-Zertifikat muss sich die Wallbox zwingend über den im Zertifikat hinterlegten Domainnamen verbinden (z. B. `wss://wallbox.deinedomain.de:9220/<Wallbox-ID>`), nicht über die lokale IP-Adresse.
+    - **Zertifikatserneuerung:** Der Adapter lädt die Zertifikate beim Start. Nach einer Erneuerung oder einem Austausch in ioBroker muss die `ocpp`-Instanz einmal neu gestartet werden.
+    - **Alternative Reverse-Proxy:** Wenn deine Wallbox keine eigenen CAs akzeptiert oder du TLS zentral terminieren möchtest, lasse **TLS verwenden** im Adapter deaktiviert und schalte einen Reverse-Proxy (z. B. Nginx, Traefik oder Caddy) vor `ws://<iobroker-ip>:9220`.
 
 ## Smart Charging & PV-Überschussladen
 
@@ -66,6 +79,7 @@ Adapter zur lokalen Einbindung und Steuerung von OCPP 1.6-J kompatiblen Wallboxe
 
 ### **WORK IN PROGRESS**
 
+* (meistermopper) Native TLS-Unterstützung (wss://) mit ioBroker-Zertifikaten ergänzt (#58)
 * (meistermopper) Weblate-Übersetzungs-Badge ergänzt
 
 ### 1.0.0 (2026-11-09)
