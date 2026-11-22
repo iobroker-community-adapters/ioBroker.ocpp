@@ -14,7 +14,7 @@
 
 ## Haftungsausschluss (Disclaimer)
 
-Die Entwickler dieses Moduls werden in keiner Weise von der Open Charge Alliance oder verbundenen Unternehmen unterstützt und stehen in keiner offiziellen Verbindung zu deren Marken oder Logos.
+Die Entwickler dieses Adapters werden in keiner Weise von der Open Charge Alliance oder verbundenen Unternehmen unterstützt und stehen in keiner offiziellen Verbindung zu deren Marken oder Logos.
 
 ## OCPP-Adapter für ioBroker
 
@@ -27,22 +27,24 @@ Adapter zur lokalen Einbindung und Steuerung von OCPP 1.6-J kompatiblen Wallboxe
 
 ## Konfiguration
 
-- **Server-Port:** TCP-Port, auf dem der OCPP-WebSocket-Server lauscht (Standard: `9220`). In der Wallbox wird als OCPP-Backend-URL `ws://<iobroker-ip>:9220/<Wallbox-ID>` eingetragen (bzw. `wss://...`, wenn TLS aktiviert ist).
+- **Server-Port:** TCP-Port, auf dem der OCPP-WebSocket-Server lauscht (Standard: `9220`).
+  In der Wallbox wird als OCPP-Backend-URL `ws://<iobroker-ip>:9220/<Wallbox-ID>` eingetragen (bzw. `wss://...`, wenn TLS aktiviert ist).
 - **Führenden Schrägstrich (`/`) aus Wallbox-IDs entfernen (`stripLeadingSlash`):** Für Neuinstallationen oder Node-RED-Kompatibilität aktivieren, damit Geräte-Objekte als `ocpp.0.EVB-P123456` statt `ocpp.0./EVB-P123456` (bzw. `ocpp.0.http://192_168_178_80:9220/EVB-P123456` bei Wallboxen wie EVBox, die beim Handshake eine komplette URL senden) angelegt werden. Bei Bestandsinstallationen deaktiviert lassen, um bestehende Objekt-IDs beizubehalten.
 - **Authentifizierung:** Optionale HTTP Basic-Authentifizierung (`username` und `password`) beim WebSocket-Verbindungsaufbau.
-- **TLS / Verschlüsseltes WebSocket (`wss://`):**
-  - **TLS verwenden (`wss://`) (`secure`):** Aktiviert verschlüsselte `wss://`-Verbindungen (**OCPP Security Profile 2**: serverseitige TLS-Verschlüsselung + optionale HTTP Basic-Authentifizierung; Client-Zertifikate / OCPP Security Profile 3 mTLS werden nicht unterstützt).
-  - **So funktioniert der ioBroker-Zertifikatsmechanismus:**
-    - Zertifikate werden in ioBroker zentral unter **Admin -> Systemeinstellungen -> Zertifikate** verwaltet (entweder die vorinstallierten selbstsignierten Standardzertifikate `defaultPublic` / `defaultPrivate`, eigene hochgeladene PEM-Zertifikate oder automatisch über z. B. `iobroker.acme` erzeugte Let's-Encrypt-Zertifikate).
-    - Sobald **TLS verwenden (`wss://`)** aktiviert ist, wählst du in den Adapter-Einstellungen die passenden Einträge aus:
-      - **Öffentliches Zertifikat (`certPublic`):** Das Server-Zertifikat (Public Key / PEM).
-      - **Privates Zertifikat (`certPrivate`):** Der passende Private Key zum Server-Zertifikat.
-      - **Verkettetes Zertifikat (`certChained`):** Optionale Intermediate-/CA-Zertifikatskette, falls deine CA oder Wallbox die vollständige Kette erwartet.
-  - **Wichtige Hinweise für echte Wallboxen:**
-    - **Truststore & selbstsignierte Zertifikate:** Viele Wallboxen lehnen selbstsignierte Zertifikate (wie das ioBroker-`defaultPublic`) ab, solange das Zertifikat bzw. die eigene Root-CA nicht explizit im Truststore der Wallbox hinterlegt wurde. Bricht die Wallbox den TLS-Handshake ab, erscheinen im Adapter-Log entsprechende `TLS handshake error`-Warnungen.
-    - **Hostname / SAN-Abgleich:** Bei einem offiziellen oder Let's-Encrypt-Zertifikat muss sich die Wallbox zwingend über den im Zertifikat hinterlegten Domainnamen verbinden (z. B. `wss://wallbox.deinedomain.de:9220/<Wallbox-ID>`), nicht über die lokale IP-Adresse.
-    - **Zertifikatserneuerung:** Der Adapter lädt die Zertifikate beim Start. Nach einer Erneuerung oder einem Austausch in ioBroker muss die `ocpp`-Instanz einmal neu gestartet werden.
-    - **Alternative Reverse-Proxy:** Wenn deine Wallbox keine eigenen CAs akzeptiert oder du TLS zentral terminieren möchtest, lasse **TLS verwenden** im Adapter deaktiviert und schalte einen Reverse-Proxy (z. B. Nginx, Traefik oder Caddy) vor `ws://<iobroker-ip>:9220`.
+- **TLS / Verschlüsseltes WebSocket (`wss://`, optional):**
+    - **TLS verwenden (`wss://`) (`secure`):** Im normalen Heimnetz reicht in der Regel das unverschlüsselte `ws://` völlig aus. Aktiviere diese Option nur, wenn deine Wallbox `wss://` voraussetzt oder du die Verbindung gezielt verschlüsseln möchtest.
+    - **So funktioniert die Zertifikatsauswahl in ioBroker:**
+        - Zertifikate werden in ioBroker zentral unter **Admin -> Systemeinstellungen -> Zertifikate** verwaltet (z. B. die bereits vorhandenen Standardzertifikate `defaultPublic` / `defaultPrivate`, eigene hochgeladene Zertifikate oder automatische Let's-Encrypt-Zertifikate über `iobroker.acme`).
+        - Sobald **TLS verwenden (`wss://`)** aktiviert ist, wählst du in den Adapter-Einstellungen einfach die passenden Einträge aus:
+            - **Öffentliches Zertifikat (`certPublic`):** Dein Server-Zertifikat.
+            - **Privates Zertifikat (`certPrivate`):** Der zugehörige private Schlüssel.
+            - **Verkettetes Zertifikat (`certChained`):** Optional, falls dein Zertifikatsanbieter eine zusätzliche Zertifikatskette verlangt.
+
+    - **Hilfreiche Tipps:**
+        - Viele Wallboxen akzeptieren im Auslieferungszustand nur offiziell signierte Zertifikate (z. B. Let's Encrypt) und lehnen selbstsignierte Zertifikate wie `defaultPublic` ab, solange sie nicht in der Wallbox hinterlegt wurden. Falls die Verbindung nicht klappt, hilft ein Blick ins Adapter-Log (`TLS handshake error`).
+        - Bei einem Domain-Zertifikat (z. B. Let's Encrypt) sollte sich die Wallbox über den passenden Domainnamen verbinden (`wss://deine-domain.example:9220/<Wallbox-ID>`), nicht über die lokale IP-Adresse.
+        - Nach einer Erneuerung oder Änderung eines Zertifikats in ioBroker reicht ein kurzer Neustart der `ocpp`-Instanz.
+        - Wenn du bereits einen Reverse-Proxy (z. B. Nginx, Traefik oder Caddy) für TLS nutzt, lasse **TLS verwenden** im Adapter einfach deaktiviert und leite auf `ws://<iobroker-ip>:9220` weiter.
 
 ## Smart Charging & PV-Überschussladen
 
@@ -84,9 +86,9 @@ Adapter zur lokalen Einbindung und Steuerung von OCPP 1.6-J kompatiblen Wallboxe
 
 ### 1.0.0 (2026-11-09)
 
-* (meistermopper) Repochecker-Warnungen behoben: nogit, info.connection-Rolle und ungenutzte Deps (#117)
-* (meistermopper) Workflow-Concurrency und Timer-Wrapper an Repochecker angepasst (#121)
-* (meistermopper) TxProfile-Schema korrigiert und ClearChargingProfile bei null chargeLimit ergänzt
+- (meistermopper) Repochecker-Warnungen behoben: nogit, info.connection-Rolle und ungenutzte Deps (#117)
+- (meistermopper) Workflow-Concurrency und Timer-Wrapper an Repochecker angepasst (#121)
+- (meistermopper) TxProfile-Schema korrigiert und ClearChargingProfile bei null chargeLimit ergänzt
 
 ### 1.0.0-alpha.4 (2026-11-09)
 
