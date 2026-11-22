@@ -81,8 +81,7 @@ This adapter would not have been possible without the great work of @foxriver76 
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 1.1.0 (2026-11-22)
 
 * (meistermopper) add native TLS (wss://) certificate support (#58)
 * (meistermopper) add Weblate translation status badge
@@ -114,10 +113,6 @@ This adapter would not have been possible without the great work of @foxriver76 
 ### 0.12.5 (2023-02-09)
 
 - (foxriver76) revert changes of 0.12.4
-
-### 0.12.3 (2023-02-07)
-
-- (foxriver76) allow deactivating `numberPhases` by setting `null
 
 [Older changelog entries can be found in CHANGELOG_OLD.md](../../CHANGELOG_OLD.md)
 

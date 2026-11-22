@@ -76,10 +76,10 @@ Adapter zur lokalen Einbindung und Steuerung von OCPP 1.6-J kompatiblen Wallboxe
 
 <!--
 	Placeholder for the next version (at the beginning of the line):
-	### **WORK IN PROGRESS**
+	### 1.1.0 (2026-11-22)
 -->
 
-### **WORK IN PROGRESS**
+### 1.1.0 (2026-11-22)
 
 * (meistermopper) Native TLS-Unterstützung (wss://) mit ioBroker-Zertifikaten ergänzt (#58)
 * (meistermopper) Weblate-Übersetzungs-Badge ergänzt

@@ -1,4 +1,8 @@
 # Older changes
+## 0.12.3 (2023-02-07)
+
+- (foxriver76) allow deactivating `numberPhases` by setting `null
+
 ## 0.12.2 (2023-01-19)
 * (foxriver76) ensure main connector is always created even if no status received there
 

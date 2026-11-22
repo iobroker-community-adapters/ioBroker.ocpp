@@ -2,8 +2,21 @@
   "common": {
     "name": "ocpp",
     "nogit": true,
-    "version": "1.0.0",
+    "version": "1.1.0",
     "news": {
+      "1.1.0": {
+        "en": "add native TLS (wss://) certificate support (#58)\nadd Weblate translation status badge",
+        "de": "Natives TLS-Zertifikat (wss://) hinzufügen (#58)\nWeblate-Logo hinzufügen",
+        "ru": "добавить встроенную поддержку сертификатов TLS (wss://) (#58)\nдобавить значок статуса перевода Weblate",
+        "pt": "adição de suporte nativo TLS (wss://) (#58)\nadicionar selo de tradução do Weblate",
+        "nl": "ondersteuning voor native TLS-certificaten (wss://) toevoegen (#58)\nWeblate vertaalstatusbadge toevoegen",
+        "fr": "ajouter un certificat TLS (wss ://) natif (#58)\najouter le badge Weblate Translation",
+        "it": "aggiungere certificati TLS nativi (wss://) (#58)\naggiungere il badge di traduzione Weblate",
+        "es": "añadir soporte de certificado TLS (wss://) nativo (#58)\nañadir el identificador de traducción de Weblate",
+        "pl": "dodaj natywne wsparcie certyfikatów TLS (wss://) (#58)\ndodaj plakietkę statusu tłumaczenia Weblate",
+        "uk": "додати підтримку власного сертифіката TLS (wss://) (#58)\nдодати значок статусу перекладу Weblate",
+        "zh-cn": "添加原生 TLS (wss://) 证书支持 (#58)\n添加 Weblate 翻译状态徽章"
+      },
       "1.0.0": {
         "en": "fix repochecker findings: nogit, info.connection role, and unused deps (#117)\nalign workflow concurrency and timer wrappers with repochecker (#121)\nfix TxProfile schedule kind and add ClearChargingProfile on null chargeLimit",
         "de": "Fix Repochecker: Nogit, Info.Connection Role und ungenutzte Deps (#117)\nWorkflow-Wrapper und Timer-Wrapper mit Repochecker abgleichen (#121)\nfix txProfile und füge ClearChargingProfile auf Null ChargeLimit hinzu",
