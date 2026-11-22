@@ -198,7 +198,11 @@
     "authentication": false,
     "username": "",
     "password": "",
-    "stripLeadingSlash": false
+    "stripLeadingSlash": false,
+    "secure": false,
+    "certPublic": "",
+    "certPrivate": "",
+    "certChained": ""
   },
   "protectedNative": [
     "username",

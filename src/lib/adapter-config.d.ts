@@ -9,6 +9,10 @@ declare global {
             username: string;
             password: string;
             stripLeadingSlash?: boolean;
+            secure?: boolean;
+            certPublic?: string;
+            certPrivate?: string;
+            certChained?: string;
         }
     }
 }
