@@ -2,7 +2,12 @@
     "authentication": "Authentification",
     "password": "Mot de passe",
     "port": "Port de serveur",
-    "stripLeadingSlash": "Supprimer la barre oblique initiale (/) des ID de bornes de recharge",
-    "stripLeadingSlashHelp": "Activer pour les nouvelles installations ou la compatibilité Node-RED. Laisser désactivé pour conserver les ID d'objets existants.",
-    "username": "Nom d'utilisateur"
+    "stripLeadingSlash": "Supprimer la barre oblique (/) au début des identifiants des bornes de recharge",
+    "stripLeadingSlashHelp": "Activer cette option pour les nouvelles installations ou pour assurer la compatibilité avec Node-RED. Laisser cette option désactivée pour conserver les identifiants d'objet existants (par exemple, /Wallbox).",
+    "username": "Nom d'utilisateur",
+    "certPublic": "Certificat public",
+    "secure": "Utiliser TLS (wss://)",
+    "certChained": "Chaîne de certificats",
+    "certPrivate": "Certificat privé",
+    "secureHelp": "Activer les connexions wss:// chiffrées à l'aide des certificats ioBroker (profil de sécurité OCPP 2). Nécessite un certificat reconnu comme fiable par votre borne de recharge."
 }
